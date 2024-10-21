@@ -586,3 +586,119 @@ public:
 时间复杂度：O(N) 
 
 空间复杂度： O(1)
+
+
+
+
+
+## 8.[买卖股票的最佳时机 II](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/)
+
+### question
+
+给你一个整数数组 `prices` ，其中 `prices[i]` 表示某支股票第 `i` 天的价格。
+
+在每一天，你可以决定是否购买和/或出售股票。你在任何时候 **最多** 只能持有 **一股** 股票。你也可以先购买，然后在 **同一天** 出售。
+
+返回 *你能获得的 **最大** 利润* 。
+
+ 
+
+**示例 1：**
+
+```
+输入：prices = [7,1,5,3,6,4]
+输出：7
+解释：在第 2 天（股票价格 = 1）的时候买入，在第 3 天（股票价格 = 5）的时候卖出, 这笔交易所能获得利润 = 5 - 1 = 4。
+随后，在第 4 天（股票价格 = 3）的时候买入，在第 5 天（股票价格 = 6）的时候卖出, 这笔交易所能获得利润 = 6 - 3 = 3。
+最大总利润为 4 + 3 = 7 。
+```
+
+**示例 2：**
+
+```
+输入：prices = [1,2,3,4,5]
+输出：4
+解释：在第 1 天（股票价格 = 1）的时候买入，在第 5 天 （股票价格 = 5）的时候卖出, 这笔交易所能获得利润 = 5 - 1 = 4。
+最大总利润为 4 。
+```
+
+**示例 3：**
+
+```
+输入：prices = [7,6,4,3,1]
+输出：0
+解释：在这种情况下, 交易无法获得正利润，所以不参与交易可以获得最大利润，最大利润为 0。
+```
+
+ 
+
+**提示：**
+
+- `1 <= prices.length <= 3 * 104`
+- `0 <= prices[i] <= 104`
+
+### answer
+
+
+
+思路
+
+由于可以买多段股票，因此本问题可以等价为寻找每个购入点和出售点。根据贪心原理，我们应该在每个**局部最小处（xprices[x] <= prices[x+1] && prices[x] < prices[x-1]）**购入，在**局部最大处（xprices[x] >= prices[x+1] && prices[x] > prices[x-1]）**出售。我们可以根据以下公式证明这个局部最优累加可以得到全局最优。
+
+假设有4个值a, b, c, d，其中b > a， d > c， c < b。根据上述局部理论，我们应该在a和c购入，b和d出售。此时利润为b-a+d-c。而在a购入，d出售的利润为d-a。由于b-c>0，所以b-a+d-c > d-a，故贪心成立。
+
+
+
+我们只需要for循环一遍找出每个局部最小处和局部最大处，并将利润累加即可。在开头和结尾处需要加上两个辅助变量。
+
+
+
+复杂度
+
+- 时间复杂度: $O(N)$
+- 空间复杂度: $O(1)$
+
+
+
+``````cpp
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int n = prices.size();
+        if (n == 0 || n == 1)
+            return 0;
+
+        int sum = 0;
+        int left = 1e9;
+        int right = -1e9; //用于判断第一位是否购入和最后一位是否卖出
+        int min, max;
+        
+        for (int i = 0; i < n; i ++){
+            int l_value, r_value;
+            int cur = prices[i];
+            if (i == 0){
+                l_value = left;
+                r_value = prices[i+1];
+            }
+                
+            else if (i == n - 1){
+                l_value = prices[i-1];
+                r_value = right;
+            }
+            else{
+                l_value = prices[i-1];
+                r_value = prices[i+1];
+            }
+            if (cur <= l_value && cur < r_value)
+                    min = prices[i];
+            
+            if (cur > l_value && cur >= r_value)
+                sum += (cur - min);
+        }
+        return sum;
+    }
+};
+``````
+
+
+
