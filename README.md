@@ -702,3 +702,213 @@ public:
 
 
 
+## 9.[跳跃游戏](https://leetcode.cn/problems/jump-game/)
+
+给你一个非负整数数组 `nums` ，你最初位于数组的 **第一个下标** 。数组中的每个元素代表你在该位置可以跳跃的最大长度。
+
+判断你是否能够到达最后一个下标，如果可以，返回 `true` ；否则，返回 `false` 。
+
+**示例 1：**
+
+```
+输入：nums = [2,3,1,1,4]
+输出：true
+解释：可以先跳 1 步，从下标 0 到达下标 1, 然后再从下标 1 跳 3 步到达最后一个下标。
+```
+
+**示例 2：**
+
+```
+输入：nums = [3,2,1,0,4]
+输出：false
+解释：无论怎样，总会到达下标为 3 的位置。但该下标的最大跳跃长度是 0 ， 所以永远不可能到达最后一个下标。
+```
+
+**提示：**
+
+- `1 <= nums.length <= 104`
+- `0 <= nums[i] <= 105`
+
+### answer
+
+思路：贪心，维护一个当前能够到达的最长长度。
+
+```cpp
+class Solution {
+public:
+    bool canJump(vector<int>& nums) {
+        int n = nums.size();
+        int highest = 0;
+        for (int i = 0; i < n; i ++){
+            if (i <= highest){
+                if (i + nums[i] >= n - 1)
+                    return true;
+                highest = max(highest, i + nums[i]);
+            }
+        }
+        return false;
+        
+    }
+};
+```
+
+
+
+## 10.[跳跃游戏 II](https://leetcode.cn/problems/jump-game-ii/)
+
+给定一个长度为 `n` 的 **0 索引**整数数组 `nums`。初始位置为 `nums[0]`。
+
+每个元素 `nums[i]` 表示从索引 `i` 向前跳转的最大长度。换句话说，如果你在 `nums[i]` 处，你可以跳转到任意 `nums[i + j]` 处:
+
+- `0 <= j <= nums[i]` 
+- `i + j < n`
+
+返回到达 `nums[n - 1]` 的最小跳跃次数。生成的测试用例可以到达 `nums[n - 1]`。
+
+**示例 1:**
+
+```
+输入: nums = [2,3,1,1,4]
+输出: 2
+解释: 跳到最后一个位置的最小跳跃数是 2。
+     从下标为 0 跳到下标为 1 的位置，跳 1 步，然后跳 3 步到达数组的最后一个位置。
+```
+
+**示例 2:**
+
+```
+输入: nums = [2,3,0,1,4]
+输出: 2
+```
+
+**提示:**
+
+- `1 <= nums.length <= 104`
+- `0 <= nums[i] <= 1000`
+- 题目保证可以到达 `nums[n-1]`
+
+### answer
+
+
+
+#### 方法1
+
+0(N) + O(N)
+
+方法同上，再维护一个数组记录达到每个位置的步数。
+
+``````cpp
+class Solution {
+public:
+    int jump(vector<int>& nums) {
+        //存放到达每个位置所需最少步数
+        
+        int count[10005] = {0};
+
+        int n = nums.size();
+        if (n == 1)
+            return 0;
+        int highest = 0;
+        for (int i = 0; i < n; i ++){
+            if (i <= highest){
+                if (i + nums[i] >= n - 1)
+                    return count[i] + 1;
+                if (highest < i + nums[i]){
+                    for (int j = highest+1; j <= i + nums[i]; j ++)
+                        count[j] = count[i] + 1;
+                    highest = i + nums[i];
+                }
+                
+            }
+        }
+        return 0;
+    }
+};
+``````
+
+#### 放法2
+
+另外一种贪心，每次只选择下一步能够走的最远的位置。
+
+``````cpp
+class Solution {
+    public int jump(int[] nums) {
+        int length = nums.length;
+        int end = 0;
+        int maxPosition = 0; 
+        int steps = 0;
+        for (int i = 0; i < length - 1; i++) {
+            maxPosition = Math.max(maxPosition, i + nums[i]); 
+            if (i == end) {
+                end = maxPosition;
+                steps++;
+            }
+        }
+        return steps;
+    }
+}
+
+
+``````
+
+
+
+## 11.[H 指数](https://leetcode.cn/problems/h-index/)
+
+给你一个整数数组 `citations` ，其中 `citations[i]` 表示研究者的第 `i` 篇论文被引用的次数。计算并返回该研究者的 **`h` 指数**。
+
+根据维基百科上 [h 指数的定义](https://baike.baidu.com/item/h-index/3991452?fr=aladdin)：`h` 代表“高引用次数” ，一名科研人员的 `h` **指数** 是指他（她）至少发表了 `h` 篇论文，并且 **至少** 有 `h` 篇论文被引用次数大于等于 `h` 。如果 `h` 有多种可能的值，**`h` 指数** 是其中最大的那个。
+
+ 
+
+**示例 1：**
+
+```
+输入：citations = [3,0,6,1,5]
+输出：3 
+解释：给定数组表示研究者总共有 5 篇论文，每篇论文相应的被引用了 3, 0, 6, 1, 5 次。
+     由于研究者有 3 篇论文每篇 至少 被引用了 3 次，其余两篇论文每篇被引用 不多于 3 次，所以她的 h 指数是 3。
+```
+
+**示例 2：**
+
+```
+输入：citations = [1,3,1]
+输出：1
+```
+
+ 
+
+**提示：**
+
+- `n == citations.length`
+- `1 <= n <= 5000`
+- `0 <= citations[i] <= 1000`
+
+
+
+### answer
+
+这道题其实很简单，但是一直在想O(N)的方法，一直在考虑状态转移。其实考虑到状态转移需要额外维护一个排序后的数组就该意识到这道题避免不了排序，这时就应该尝试使用排序解决问题。排序后只需从前想后遍历一遍，遇到citations[i] >= n-i即可返回。
+
+反思：避免盲目追求**O(N)**
+
+
+
+``````CPP
+class Solution {
+public:
+    int hIndex(vector<int>& citations) {
+        int n = citations.size();
+        sort(citations.begin(), citations.end());
+
+        for (int i = 0; i < n; i ++){
+            if (citations[i] >= n - i)
+                return n-i;
+        }
+        return 0;
+        
+    }
+};
+``````
+
