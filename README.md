@@ -912,3 +912,344 @@ public:
 };
 ``````
 
+
+
+## 12.[O(1) 时间插入、删除和获取随机元素](https://leetcode.cn/problems/insert-delete-getrandom-o1/)
+
+实现`RandomizedSet` 类：
+
+- `RandomizedSet()` 初始化 `RandomizedSet` 对象
+- `bool insert(int val)` 当元素 `val` 不存在时，向集合中插入该项，并返回 `true` ；否则，返回 `false` 。
+- `bool remove(int val)` 当元素 `val` 存在时，从集合中移除该项，并返回 `true` ；否则，返回 `false` 。
+- `int getRandom()` 随机返回现有集合中的一项（测试用例保证调用此方法时集合中至少存在一个元素）。每个元素应该有 **相同的概率** 被返回。
+
+你必须实现类的所有函数，并满足每个函数的 **平均** 时间复杂度为 `O(1)` 。
+
+ 
+
+**示例：**
+
+```
+输入
+["RandomizedSet", "insert", "remove", "insert", "getRandom", "remove", "insert", "getRandom"]
+[[], [1], [2], [2], [], [1], [2], []]
+输出
+[null, true, false, true, 2, true, false, 2]
+
+解释
+RandomizedSet randomizedSet = new RandomizedSet();
+randomizedSet.insert(1); // 向集合中插入 1 。返回 true 表示 1 被成功地插入。
+randomizedSet.remove(2); // 返回 false ，表示集合中不存在 2 。
+randomizedSet.insert(2); // 向集合中插入 2 。返回 true 。集合现在包含 [1,2] 。
+randomizedSet.getRandom(); // getRandom 应随机返回 1 或 2 。
+randomizedSet.remove(1); // 从集合中移除 1 ，返回 true 。集合现在包含 [2] 。
+randomizedSet.insert(2); // 2 已在集合中，所以返回 false 。
+randomizedSet.getRandom(); // 由于 2 是集合中唯一的数字，getRandom 总是返回 2 。
+```
+
+ 
+
+**提示：**
+
+- `-231 <= val <= 231 - 1`
+- 最多调用 `insert`、`remove` 和 `getRandom` 函数 `2 * ``105` 次
+- 在调用 `getRandom` 方法时，数据结构中 **至少存在一个** 元素。
+
+
+
+### Answer
+
+用vector存储实际的data，用hashmap存储不同数在vector中的位置。没想到的一点是在vector中删除数据可以和最后一位交换从而实现O(1)。
+
+code
+
+``````cpp
+class RandomizedSet {
+public:
+    RandomizedSet() {
+        srand((unsigned)time(NULL));
+
+    }
+    
+    bool insert(int val) {
+        
+        auto add = m.find(val);
+        if (add != m.end()) {
+            return false;
+        } else {
+            b.push_back(val);
+            m.insert({val, b.size()-1}); 
+            return true;
+        }
+
+    }
+    
+    bool remove(int val) {
+        if (!m.count(val)) {
+            return false;
+        }else{
+            // 在vector中直接删除val是0(N)，所以移动到最后一位并删除最后一位
+            int last = b.back();
+            int index = m[val];
+            m[last] = index;
+            b[index] = last;
+            b.pop_back();
+            m.erase(val);
+
+            return true;
+        }
+        
+    }
+    
+    int getRandom() {
+        //随机数访问
+        int randomIndex = rand()%b.size();
+
+        return b[randomIndex];
+    }
+private:
+// 结合hashmap和vector
+unordered_map<int, int> m; //key为val, value为vector的索引
+vector<int> b;
+};
+
+/**
+ * Your RandomizedSet object will be instantiated and called as such:
+ * RandomizedSet* obj = new RandomizedSet();
+ * bool param_1 = obj->insert(val);
+ * bool param_2 = obj->remove(val);
+ * int param_3 = obj->getRandom();
+ */
+``````
+
+
+
+## 13.分发糖果
+
+`n` 个孩子站成一排。给你一个整数数组 `ratings` 表示每个孩子的评分。
+
+你需要按照以下要求，给这些孩子分发糖果：
+
+- 每个孩子至少分配到 `1` 个糖果。
+- 相邻两个孩子评分更高的孩子会获得更多的糖果。
+
+请你给每个孩子分发糖果，计算并返回需要准备的 **最少糖果数目** 。
+
+ 
+
+**示例 1：**
+
+```
+输入：ratings = [1,0,2]
+输出：5
+解释：你可以分别给第一个、第二个、第三个孩子分发 2、1、2 颗糖果。
+```
+
+**示例 2：**
+
+```
+输入：ratings = [1,2,2]
+输出：4
+解释：你可以分别给第一个、第二个、第三个孩子分发 1、2、1 颗糖果。
+     第三个孩子只得到 1 颗糖果，这满足题面中的两个条件。
+```
+
+ 
+
+**提示：**
+
+- `n == ratings.length`
+- `1 <= n <= 2 * 104`
+- `0 <= ratings[i] <= 2 * 104`
+
+
+
+思路：
+
+### 1. 左右规则
+
+#### todo
+
+### 2. 递增和递减序列
+
+将序列分为递增序列和递减序列，首先找到第一个1，然后后面从递增序列开始找起。
+
+``````cpp
+class Solution {
+public:
+    int candy(vector<int>& ratings) {
+        int n = ratings.size();
+        int ans = 1;
+        int count = 1;
+
+        // 找到第一个1
+
+        int i;
+        for (i = 0; i < n-1; i ++){
+            if (ratings[i+1] < ratings[i]) continue;
+            else {
+                count =1;
+           //     printf("第%d位分得%d个\n", i, count);
+                break;
+
+            }
+        }
+
+        // 第一个1前面的数相加
+        for (int j = i - 1; j >= 0; j --){
+
+            if (ratings[j] == ratings[j+1]) ans+=count;
+            else{
+                count +=1;
+                ans +=count;
+            //   printf("第%d位分得%d个\n", j, count);
+            }
+        }
+
+        count = 1;
+        int flag = 1;
+        int highest;
+        for (int k = i + 1; k < n; k ++){
+            if (ratings[k] >= ratings[k - 1]){
+               
+                if (flag == 0){
+                    // 进入递增序列的第二个值，第k个数则为2或1
+                 count = (ratings[k] > ratings[k - 1]) ? 2 : 1;           
+
+                }else{
+                    count = (ratings[k] > ratings[k - 1]) ? (count + 1) : 1;
+                }
+           //     printf("第%d位分得%d个\n", k, count);
+                ans += count;
+                flag = 1;
+            }else{
+                if (flag == 1){
+                    // 进入递减序列
+                    highest = count;
+                 //   printf("highest : %d\n",highest);
+                    if (highest == 1) // 如果递增序列的最后一位是1（最后一位和倒数第二位相等），则最后一位视为递减序列的开始，k位从2开始
+                        count = 2;
+                    else
+                        count = 1;
+                    ans += count;
+                    flag = 0;
+                }else {
+
+                    count = (ratings[k] < ratings[k - 1]) ? (count + 1) : count;
+
+                    // 碰到最高位则互换
+                    if (count == highest) count ++;
+                    ans += count;
+                }
+             //   printf("第%d位分得%d个\n", k, count);
+
+            }
+        }
+
+        return ans;
+    }
+};
+``````
+
+
+
+### 3. 排序
+
+#### todo
+
+
+
+## 14.[接雨水](https://leetcode.cn/problems/trapping-rain-water/)
+
+给定 `n` 个非负整数表示每个宽度为 `1` 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/10/22/rainwatertrap.png)
+
+```
+输入：height = [0,1,0,2,1,0,1,3,2,1,2,1]
+输出：6
+解释：上面是由数组 [0,1,0,2,1,0,1,3,2,1,2,1] 表示的高度图，在这种情况下，可以接 6 个单位的雨水（蓝色部分表示雨水）。 
+```
+
+**示例 2：**
+
+```
+输入：height = [4,2,0,3,2,5]
+输出：9
+```
+
+ 
+
+**提示：**
+
+- `n == height.length`
+- `1 <= n <= 2 * 104`
+- `0 <= height[i] <= 105`
+
+### 思路
+
+**贪心**就完事。
+
+### 解题过程
+
+
+
+我们把这个序列想象成一个先递增，后递减的序列。然后在递增序列中，将不满足递增元素的位置灌水，高度向左灌至与最近的递增元素持平即可。递减序列同理，向右灌。
+
+复杂度
+
+- 时间复杂度: $O(N)$
+- 空间复杂度: $O(1)$
+
+
+
+### Code
+
+
+
+``````cpp
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        int n = height.size();
+        int max = height[0], max_index = 0;
+        int ans = 0;
+        // 找到最大值
+        for (int i = 1; i < n; i ++){
+            if (height[i] >= max){
+                max = height[i];
+                max_index = i;
+            }
+        }
+
+        // forward，start设为[0]，如果碰到比他小直接灌到start的高度，碰到>=start则重设start，直到最大值
+        int start = height[0];
+        for (int i = 1; i < max_index; i ++){
+            
+            if (height[i] >= start){
+                start = height[i];
+            }else{
+                ans += start - height[i];
+            }
+            
+        }
+        // backward，start设为[n-1]，如果碰到比他小直接灌到start的高度，碰到>=start则重设start，直到最大值
+        start = height[n-1];
+        for (int i = n - 1; i > max_index; i --){
+            if (height[i] >= start){
+                start = height[i];
+            }else{
+                ans += start - height[i];
+            }
+        }
+        return ans;
+    }
+};
+``````
+
+
+
